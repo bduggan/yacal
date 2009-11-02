@@ -1,0 +1,76 @@
+#!/usr/bin/perl -w
+
+=head1 NAME
+
+    add-cal-to-pdb
+
+=head1 SYNOPSIS
+
+    add-cal-to-pdb <pdb datebook file> <yacal dump file>
+
+=head1 DESCRIPTION
+
+    Given another pdb and a yacal dump file, add all the
+    events in the yacal file to the pdb, and create a new
+    pdb file.
+
+=head1 EXAMPLES
+
+    add-cal-to-pdb DatebookDB.pdb cal_data.dmp
+
+=head1 TODO
+
+    Intelligent merging.
+
+=head1 COPYING
+
+    Copyright Brian Duggan 2005
+    This program is distributed under the Gnu Public License (GPL)
+
+=cut
+
+use Time::Piece;
+use strict;
+
+my $datebook_file = $ARGV[0] or die "missing datebook file: Type 'perldoc $0' for usage.\n";
+my $cal_data = $ARGV[1] or die "missing yacal data file: Type 'perldoc $0' for usage.\n";
+
+use Palm::Datebook;
+
+my $new = new Palm::Datebook;
+my $pdb = new Palm::PDB;
+$pdb->Load($datebook_file) or die "couldn't open $datebook_file";
+my %datebook;
+for (@{ $pdb->{records} }) {
+    push @{ $datebook{sprintf("%4d-%02d-%02d",$_->{year},$_->{month},$_->{day})} }, $_ ;
+}
+
+my $data = eval "do '$cal_data'" or die "couldn't read $cal_data";
+
+for my $date (keys %$data) {
+    my $events = $data->{$date};
+    for my $event (@$events) {
+        my ($existing) = grep $event->{subject} eq $_->{description}, @{ $datebook{$date} || [] };
+        next if $existing;;
+        print "Adding $event->{date} : $event->{subject}\n";
+        my $date = Time::Piece->strptime($event->{date},'%Y-%m-%d');
+        my $record = $pdb->new_Record;
+        $record->{year} = $date->year;
+        $record->{month} = $date->mon;
+        $record->{day} = $date->mday;
+        $record->{description} = $event->{subject};
+        my $start = Time::Piece->strptime($event->{start_time},'%H:%M');
+        my $end = Time::Piece->strptime($event->{end_time},'%H:%M');
+        $record->{start_hour} = $start->hour;
+        $record->{start_minute} = $start->minute;
+        $record->{end_hour} = $end->hour;
+        $record->{end_minute} = $end->minute;
+        delete $record->{alarm};
+        push @{ $pdb->{records} }, $record;
+    }
+}
+
+$pdb->Write('DatebookDB.pdb') or die "couldn't write DatebooDB.pdb";
+print "\nWrote DatebookDB.pdb";
+
+

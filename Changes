@@ -1,0 +1,26 @@
+version 0.01  : May 15, 2005
+    - Initial release 
+
+version 0.02 : shortly after version 0.01
+    - updated license, bug fixes for PDB importing
+
+version 0.03 : November 20, 2005
+    - added trim-old-yacal-events
+    - fixed race condition by using write + rename instead of file locking
+    - no longer displays 0:00 times
+    - more error checking
+    - only writes the datafile when necessary (instead of every request)
+    - Set default CGI::POST_MAX and Data::Dumper::Indent values
+    - html-escaped strings
+    - Added this Changes file
+
+version 0.04 : April 16, 2006
+    - added rss feed
+    - added pdb web export
+    - added txt export
+    - added sorting of dates by time within a day
+    - bugfix for editing the date of an event
+    - added support for blank start or end times
+
+
+

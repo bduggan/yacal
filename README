@@ -1,0 +1,25 @@
+
+Yacal -- yet another calendar
+
+Motivation
+----------
+yacal is intended to be concise and malleable, with few dependencies.
+
+Things like authentication, recurring events, interfaces to a relational
+database, and fancy graphics were deliberately not implemented.
+
+The design goals were to have :
+    - a clear presentation
+    - the ability to edit a day while looking at the rest of the days
+      (no clicking, editing, coming back)
+    - highly maintainable, and easily auditable source code
+    - no javascript or other server side languages
+    - lightweight and fast (i.e. without needing a dedicated mod_perl webserver)
+    - data stored in a highly portable, readable format (Data::Dumper)
+
+Interface-wise, I wanted to mimick a paper month-based calendar as closely
+as possible.
+
+Brian Duggan <bduggan@matatu.org>
+Copyright (C) 2005-2010 Brian Duggan
+

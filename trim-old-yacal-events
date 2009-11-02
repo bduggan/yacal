@@ -1,0 +1,50 @@
+#!/usr/bin/perl -wT
+use strict;
+
+=head1 NAME
+
+    trim-old-yacal-events
+
+=head1 SYNOPSIS
+
+    trim-old-yacal-events
+
+=head1 DESCRIPTION
+
+    Remove events older than a certain amount of time from the yacal data file.
+
+=head1 COPYING
+
+    Copyright Brian Duggan 2005
+    This program is distributed under the Gnu Public License (GPL):!perl -cT
+
+=cut
+
+use constant DATAFILE => '/set/this/to/the/same/as/yacal.cgi/datafile';
+
+use Time::Piece;
+use Time::Seconds;
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
+
+my $filename = DATAFILE;
+my $data = eval "do '$filename'";
+die "bad datafile $filename : $@" if $@;
+die "bad datafile $filename" unless ref($data) && ref($data) eq 'HASH';
+
+my $cutoff = Time::Piece->new - ONE_MONTH;
+my $deleted = 0;
+for (keys %$data) {
+    next if Time::Piece->strptime($_,'%Y-%m-%d') > $cutoff;
+    delete $data->{$_};
+    $deleted++;
+}
+
+exit unless $deleted;
+my $tmpfile = "$filename-$$-".time;
+open FP, ">$tmpfile" or die "couldn't open $tmpfile for writing";
+print FP Dumper($data);
+close FP or die "couldn't close $tmpfile";
+rename $tmpfile, $filename or die "couldn't rename $tmpfile to $filename: $!";
+
+
