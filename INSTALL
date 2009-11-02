@@ -5,9 +5,13 @@ by the user as whom the webserver runs.  Place yacal.cgi in a
 cgi-bin directory for your webserver.  Light fuse and get away.
 
 You'll also want to install the perl modules Time::Piece,
-Time::Piece::Month, Time::Seconds, XML::RSS, and Palm::Datebook
-(part of p5-Palm).  For help on installing perl modules see
-    <http://www.google.com/search?q=perlmodinstall>
+Time::Piece::Month, Time::Seconds, XML::RSS.  The following
+command should be sufficient :
+
+    cpan Time::Piece
+    cpan Time::Piece::Month
+    cpan Time::Seconds
+    cpan XML::RSS
 
 Put your calendar in an area with Basic Authentication enabled
 if you want a private calendar.  (See your webserver's documentation.)

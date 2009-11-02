@@ -16,7 +16,7 @@ use strict;
 =head1 COPYING
 
     Copyright Brian Duggan 2005
-    This program is distributed under the Gnu Public License (GPL):!perl -cT
+    This program is distributed under the Gnu Public License (GPL)
 
 =cut
 

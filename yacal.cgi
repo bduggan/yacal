@@ -32,12 +32,10 @@
 
 =head1 TODO
 
-    Recurring events/holidays/birthdays
-    Exporting as ical, vcal, csv, pdf, postscript, ascii, morse code, whatever.
+    Recurring events
+    Exporting as ical, csv, pdf 
     Importing from various formats.
-    Simplify the storage format by creating an alternative freezer for Time::Piece objects.
-    Store the data in multiple files (and only read in what's necessary).  This'll
-    make archiving old events unnecessary.
+    Serializing with JSON::XS
 
 =cut
 
@@ -71,7 +69,6 @@ sub from_cgi {
 #
 package Yacal::Event;
 use XML::RSS;
-use Palm::Datebook;
 
 # Constructor, using cgi paramaters.
 sub from_cgi {
@@ -253,43 +250,6 @@ sub display_rss {
     print "Content-type: text/xml\n\n".$rss->as_string;
 }
 
-# A palm datebook file
-sub display_pdb {
-    my $self = shift;
-    my $q = shift;
-    my $pdb = new Palm::Datebook;
-    for my $event (map { @$_ } values %{ $self->{data} }) {
-        my $record = $pdb->new_Record;
-        my %new = (
-              description  => $event->subject,
-              year         => $event->fullstart->year,
-              month        => $event->fullstart->mon,
-              day          => $event->fullstart->mday,
-           ($event->start_time ? (
-              start_hour   => $event->fullstart->hour,
-              start_minute => $event->fullstart->minute,
-           ) : ()),
-           ($event->end_time ? (
-              end_hour     => $event->fullend->hour,
-              end_minute   => $event->fullend->minute,
-           ) : ()),
-        );
-        delete $record->{alarm};
-        $record->{$_} = $new{$_} for keys %new;
-        push @{ $pdb->{records} }, $record;
-    }
-    my $tmpfile = $self->{filename}."-pdb-$$-".time.(int rand 1000).".pdb"; 
-    $pdb->Write($tmpfile);
-    local $/=undef;
-    open FP, "< $tmpfile" or die "couldn't read $tmpfile, $!";
-    my $data = <FP>;
-    close FP or die "error closing $tmpfile, $!";
-    unlink $tmpfile;
-    print $q->header(-content_type => 'application/x-pilot', 
-        -content_disposition => 'filename=DatebookDB.pdb');
-    print $data;
-}
-
 # A text file, compatible with install-datebook(1) format (as of pilot-link v 0.12.0)
 sub display_txt { # (sadly untested since install-datebook seg faults on me)
     my $self = shift;
@@ -348,7 +308,7 @@ sub print_cal {
         $q->a({-href=>$ENV{SCRIPT_NAME}."?".$this_month->next_month->start->to_cgi}," --> "));
     print $q->div({-class=>'topleft'},
             map 
-            { $q->a({-href=>$ENV{SCRIPT_NAME}."?action=$_"},$_) } qw(rss pdb txt)
+            { $q->a({-href=>$ENV{SCRIPT_NAME}."?action=$_"},$_) } qw(rss txt)
             );
     print
         $q->div({-class=>'topright'},
@@ -421,7 +381,6 @@ sub main {
         /delete/      and $selected_event = -1;;
         /add|edit|delete/ and $yc->write;
         /rss/         and do { $yc->display_rss($q); exit; };
-        /pdb/         and do { $yc->display_pdb($q); exit; };
         /txt/         and do { $yc->display_txt($q); exit; };
     }
 

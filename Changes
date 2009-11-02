@@ -22,5 +22,7 @@ version 0.04 : April 16, 2006
     - bugfix for editing the date of an event
     - added support for blank start or end times
 
-
+version 0.05 : November 2, 2010
+    - removed pdb web export
+    - cleaned up comments
 
