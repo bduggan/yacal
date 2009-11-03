@@ -49,6 +49,7 @@ use Time::Piece::Month;
 use constant DATAFILE => '/set/me/to/a/directory/writeable/only/by/web/cal_data.dmp';
 use constant TITLE => "<your name here>'s calendar";
 $Yacal::Title = TITLE;
+$Yacal::VERSION = '0.05';
 
 #
 # Time::Piece -- some extra handy functions
